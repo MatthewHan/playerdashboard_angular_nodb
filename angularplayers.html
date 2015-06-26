@@ -79,14 +79,14 @@
                Position: <input type='text' ng-model='p.newPlayer.position'>
                <button class='btn btn-info btn-sm' ng-click='p.addPlayer()'>Add New Player</button>
             </form>
-            <div class='col-md-4'>
+            <!--<div class='col-md-4'>
                <select ng-model="col">
-                  <option value="name">Name</option>
+                  <option value="name" >Name</option>
                   <option value="position">Position</option>
                   <option value="team">Team</option>
                </select>
                Search Name: <input type="text" ng-model="p.searchWord[col]">
-            </div>
+            </div> -->
          </div>
          
          <div class="row margin-0 list-header hidden-sm hidden-xs">
@@ -95,7 +95,13 @@
             <div class="col-md-3"><div class="header">Position</div></div>
             <div class="col-md-2"><div class="header">Actions</div></div>
          </div>
-         <div class="row margin-0" ng-repeat='player in p.players | filter:p.searchWord' ng-click = "SelectItem(item)">
+         <div class="row margin-0">
+            <div class="col-md-4"><input type="text" ng-model="p.searchWord.name" placeholder="Search By Name"></div>
+            <div class="col-md-3"><input type="text" ng-model="p.searchWord.team" placeholder="Search By Team"></div>
+            <div class="col-md-3"><input type="text" ng-model="p.searchWord.position" placeholder="Search By Position"></div>
+            <div class="col-md-2"></div>
+         </div>
+         <div class="row margin-0" ng-repeat='player in p.players | filter:p.searchWord' >
             <div class="col-md-4">
                <div class="cell" ng-bind='player.name'>
                </div>
