@@ -1,0 +1,100 @@
+<html>
+<head>
+   <title>Player Dashboard</title>
+   <link rel="stylesheet" href="dashboard.css">
+   <!-- Angular -->
+   <script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js'></script>
+   <!-- Latest compiled and minified CSS -->
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+   <!-- Optional theme -->
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+   <!-- Bootstrap specific javascript functions -->
+   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+   <script type='text/javascript'>
+      var myApp = angular.module('myApp', []);
+      
+      myApp.controller('playersController', function (playerFactory){
+         // we don't need a factory for this demo, it wouldn't make a difference if we did.
+         that = this;
+         that.players = [];
+         playerFactory.getPlayers(function(data){
+            that.players=data;
+         })
+         this.addPlayer = function(){
+            
+            playerFactory.addPlayer(this.newPlayer);
+            this.newPlayer = {};
+         }
+         this.removePlayer = function(index){
+            playerFactory.removePlayer(index)
+         }
+
+      });
+      myApp.factory('playerFactory', function (){
+         // a factory is nothing more than a function that returns an object literal!
+         var players = [
+            {name:'Bo Jackson', position: 'RB', team:'Raiders'},
+            {name:'Emmitt Smith', position: 'RB', team:'Cowboys'}];
+         var factory = {};
+         // add a getstudents method to the object we defined
+         factory.getPlayers = function (callback){
+            // pass the students to a callback to be used by whoever calls the method
+            callback(players);
+         }
+         factory.addPlayer = function(player){
+            for(i in players){
+               if(players[i].name == player.name){
+                  players[i] = player;
+               }
+            }
+            players.push(player);
+         }
+         factory.removePlayer = function(index){
+            players.splice(index,1);
+         }
+         // most important step: return the object so it can be used by the rest of our angular code
+         return factory
+      });
+   </script>
+</head>
+<body ng-app='myApp'>
+   <div ng-controller = 'playersController as p' class="container">
+      <h2>Players Dashboard</h2>
+      <div class="method">
+         <h3>Add a new player!</h3>
+         <form>
+            Name: <input type='text' ng-model='p.newPlayer.name'>
+            Team: <input type='text' ng-model='p.newPlayer.team'>
+            Position: <input type='text' ng-model='p.newPlayer.position'>
+            <button class='btn btn-info btn-sm' ng-click='p.addPlayer()'>Add New Player</button>
+         </form>
+         <div class="row margin-0 list-header hidden-sm hidden-xs">
+            <div class="col-md-4"><div class="header">Name</div></div>
+            <div class="col-md-3"><div class="header">Team</div></div>
+            <div class="col-md-3"><div class="header">Position</div></div>
+            <div class="col-md-2"><div class="header">Actions</div></div>
+         </div>
+         <div class="row margin-0" ng-repeat='player in p.players'>
+            <div class="col-md-4">
+               <div class="cell" ng-bind='player.name'>
+               </div>
+            </div>
+            <div class="col-md-3">
+               <div class="cell" ng-bind='player.team'>
+               </div>
+            </div>
+            <div class="col-md-3">
+               <div class="cell" ng-bind='player.position'>
+               </div>
+            </div>
+            <div class="col-md-2">
+               <div class="cell">
+                  <button class = 'btn btn-danger btn-sm' ng-click = 'p.removePlayer($index)'>Remove</button>
+               </div>
+            </div>
+            <br><br>
+         </div>
+      </div>
+   </div>
+</body>
+</html>
