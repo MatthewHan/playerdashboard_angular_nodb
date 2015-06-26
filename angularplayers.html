@@ -1,9 +1,12 @@
 <html>
 <head>
    <title>Player Dashboard</title>
+   <meta charset="UTF-8"> 
    <link rel="stylesheet" href="dashboard.css">
    <!-- Angular -->
    <script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js'></script>
+   <!-- JQuery -->
+   <script src ='https://code.jquery.com/jquery-2.1.4.min.js'></script>
    <!-- Latest compiled and minified CSS -->
    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
    <!-- Optional theme -->
@@ -17,16 +20,18 @@
          // we don't need a factory for this demo, it wouldn't make a difference if we did.
          that = this;
          that.players = [];
+         that.searchWord = {};
          playerFactory.getPlayers(function(data){
             that.players=data;
          })
          this.addPlayer = function(){
             
-            playerFactory.addPlayer(this.newPlayer);
+            this.errormessage = playerFactory.addPlayer(this.newPlayer);
+            console.log('controller' + this.errormessage);
             this.newPlayer = {};
          }
-         this.removePlayer = function(index){
-            playerFactory.removePlayer(index)
+         this.removePlayer = function(item){
+            playerFactory.removePlayer(item)
          }
 
       });
@@ -34,6 +39,8 @@
          // a factory is nothing more than a function that returns an object literal!
          var players = [
             {name:'Bo Jackson', position: 'RB', team:'Raiders'},
+            {name:'Reggie White', position: 'DE', team:'Packers'},
+            {name:'Dick Butkus', position: 'LB', team:'Bears'},
             {name:'Emmitt Smith', position: 'RB', team:'Cowboys'}];
          var factory = {};
          // add a getstudents method to the object we defined
@@ -44,37 +51,51 @@
          factory.addPlayer = function(player){
             for(i in players){
                if(players[i].name == player.name){
-                  players[i] = player;
+                  errormessage = 'Player already exists';
+                  return errormessage;
                }
             }
             players.push(player);
          }
-         factory.removePlayer = function(index){
-            players.splice(index,1);
+         factory.removePlayer = function(item){
+            players.splice(players.indexOf(item),1);
          }
          // most important step: return the object so it can be used by the rest of our angular code
          return factory
       });
    </script>
+
 </head>
 <body ng-app='myApp'>
    <div ng-controller = 'playersController as p' class="container">
       <h2>Players Dashboard</h2>
+      <p ng-bind='p.errormessage'></p>
       <div class="method">
          <h3>Add a new player!</h3>
-         <form>
-            Name: <input type='text' ng-model='p.newPlayer.name'>
-            Team: <input type='text' ng-model='p.newPlayer.team'>
-            Position: <input type='text' ng-model='p.newPlayer.position'>
-            <button class='btn btn-info btn-sm' ng-click='p.addPlayer()'>Add New Player</button>
-         </form>
+         <div class="row margin-0 list-header hidden-sm hidden-xs">
+            <form class = 'col-md-8'>
+               Name: <input type='text' ng-model='p.newPlayer.name'>
+               Team: <input type='text' ng-model='p.newPlayer.team'>
+               Position: <input type='text' ng-model='p.newPlayer.position'>
+               <button class='btn btn-info btn-sm' ng-click='p.addPlayer()'>Add New Player</button>
+            </form>
+            <div class='col-md-4'>
+               <select ng-model="col">
+                  <option value="name">Name</option>
+                  <option value="position">Position</option>
+                  <option value="team">Team</option>
+               </select>
+               Search Name: <input type="text" ng-model="p.searchWord[col]">
+            </div>
+         </div>
+         
          <div class="row margin-0 list-header hidden-sm hidden-xs">
             <div class="col-md-4"><div class="header">Name</div></div>
             <div class="col-md-3"><div class="header">Team</div></div>
             <div class="col-md-3"><div class="header">Position</div></div>
             <div class="col-md-2"><div class="header">Actions</div></div>
          </div>
-         <div class="row margin-0" ng-repeat='player in p.players'>
+         <div class="row margin-0" ng-repeat='player in p.players | filter:p.searchWord' ng-click = "SelectItem(item)">
             <div class="col-md-4">
                <div class="cell" ng-bind='player.name'>
                </div>
@@ -89,7 +110,7 @@
             </div>
             <div class="col-md-2">
                <div class="cell">
-                  <button class = 'btn btn-danger btn-sm' ng-click = 'p.removePlayer($index)'>Remove</button>
+                  <button class = 'btn btn-danger btn-sm' ng-click = 'p.removePlayer(player)'>Remove</button>
                </div>
             </div>
             <br><br>
